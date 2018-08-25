@@ -1,7 +1,0 @@
-twig:
-    paths: ['%kernel.project_dir%/templates']
-    debug: '%kernel.debug%'
-    strict_variables: '%kernel.debug%'
-    globals:
-        path_image: '/images/'
-        path_partner: '/uploads/partners/'
