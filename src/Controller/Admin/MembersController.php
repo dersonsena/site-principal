@@ -4,7 +4,9 @@ namespace App\Controller\Admin;
 
 use App\Entity\Member;
 use App\Entity\Partner;
+use App\Form\MemberType;
 use App\Form\PartnerType;
+use App\Repository\MemberRepository;
 use App\Repository\PartnerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
@@ -31,22 +33,23 @@ class MembersController extends Controller
 
     /**
      * @Route("/", name="members_list")
-     * @Template("/admin/partner/index.html.twig")
+     * @Template("/admin/members/index.html.twig")
      * @param Request $request
-     * @param PartnerRepository $partnerRepository
+     * @param MemberRepository $memberRepository
      * @return array
      */
-    public function index(Request $request, PartnerRepository $partnerRepository)
+    public function index(Request $request, MemberRepository $memberRepository)
     {
-        $partner = new Partner();
-        $form = $this->createForm(PartnerType::class);
+        $member = new Member();
+        $form = $this->createForm(MemberType::class);
         $filters = $request->get('member', []);
-        $dataProvider = $partnerRepository->getDataProvider($filters);
+        $dataProvider = $memberRepository->getDataProvider($filters);
+
         if (!empty($filters)) {
-            $partner->setName($filters['name']);
-            $partner->setType($filters['type']);
+            $member->setName($filters['name']);
         }
-        $form->setData($partner);
+
+        $form->setData($member);
         $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($dataProvider));
         $pagerfanta->setMaxPerPage($this->getParameter('pagination')['per_page']);
         $pagerfanta->setCurrentPage($request->get('page', 1));
@@ -62,20 +65,17 @@ class MembersController extends Controller
      * @Route("/create", name="members_create", methods="GET|POST")
      * @Template("admin/members/create.html.twig")
      * @param Request $request
-     * @param UserInterface $user
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function create(Request $request, UserInterface $user)
+    public function create(Request $request)
     {
-        $partner = new Partner();
-        $form = $this->createForm(PartnerType::class, $partner);
+        $member = new Member();
+        $form = $this->createForm(MemberType::class, $member);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $partner->setCreatedBy($user);
-
             $em = $this->getDoctrine()->getManager();
-            $em->persist($partner);
+            $em->persist($member);
             $em->flush();
 
             $this->addFlash('success', 'Membro foi salvo com sucesso!');
@@ -83,7 +83,7 @@ class MembersController extends Controller
         }
 
         return [
-            'member' => $partner,
+            'member' => $member,
             'form' => $form->createView(),
         ];
     }
@@ -103,12 +103,12 @@ class MembersController extends Controller
      * @Route("/{id}/edit", name="members_edit", methods="GET|POST")
      * @Template("admin/members/edit.html.twig")
      * @param Request $request
-     * @param Partner $partner
+     * @param Member $member
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function edit(Request $request, Partner $partner)
+    public function edit(Request $request, Member $member)
     {
-        $form = $this->createForm(PartnerType::class, $partner);
+        $form = $this->createForm(MemberType::class, $member);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -118,7 +118,7 @@ class MembersController extends Controller
         }
 
         return [
-            'member' => $partner,
+            'member' => $member,
             'form' => $form->createView(),
         ];
     }

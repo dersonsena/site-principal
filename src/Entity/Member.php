@@ -54,7 +54,9 @@ class Member
     private $phone;
 
     /**
+     * @var boolean
      * @ORM\Column(type="boolean", options={"default": 1})
+     * @Assert\NotBlank()
      */
     private $status = true;
 
@@ -129,15 +131,14 @@ class Member
         return $this;
     }
 
-    public function getStatus(): ?int
+    public function isStatus():? bool
     {
         return $this->status;
     }
 
-    public function setStatus(int $status): self
+    public function setStatus(bool $status): self
     {
         $this->status = $status;
-
         return $this;
     }
 

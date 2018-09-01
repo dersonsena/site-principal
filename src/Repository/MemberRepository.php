@@ -19,32 +19,21 @@ class MemberRepository extends ServiceEntityRepository
         parent::__construct($registry, Member::class);
     }
 
-//    /**
-//     * @return Member[] Returns an array of Member objects
-//     */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param array $filters
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getDataProvider(array $filters = [])
     {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('m.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $queryBuilder = $this->createQueryBuilder('m')
+            ->addOrderBy('m.name', 'ASC')
+            ->addOrderBy('m.created_at', 'DESC');
 
-    /*
-    public function findOneBySomeField($value): ?Member
-    {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if (!empty($filters['name'])) {
+            $queryBuilder->where('m.name LIKE :name')
+                ->setParameter(':name', "%{$filters['name']}%");
+        }
+
+        return $queryBuilder;
     }
-    */
 }
